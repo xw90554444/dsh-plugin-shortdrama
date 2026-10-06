@@ -1,0 +1,4 @@
+# Adds only this plugin's own row. Does not replace or override any official DSH component.
+- insert:
+    - id: shortdrama
+      name: dsh-plugin-shortdrama

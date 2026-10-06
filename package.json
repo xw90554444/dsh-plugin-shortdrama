@@ -1,0 +1,33 @@
+{
+  "name": "dsh-plugin-shortdrama",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ShortDrama Studio — script, storyboard, keyframes and MiniMax-H3 prompts for short-form drama, running on a local ComfyUI.",
+  "type": "module",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./compile": "./lib/pipeline/compile.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  }
+}

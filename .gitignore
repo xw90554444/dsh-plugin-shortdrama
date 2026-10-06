@@ -1,0 +1,7 @@
+# Dependencies are installed per profile; the plugin itself has none.
+node_modules/
+# Local verification artifacts and captured images.
+.verify/
+*.log
+.DS_Store
+Thumbs.db
