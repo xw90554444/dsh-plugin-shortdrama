@@ -105,13 +105,80 @@ CLIPLoader + 视频VAE + 音频VAE + N 张参考图 → MiniMaxH3ReferenceToVide
 
 ## 安装
 
-```bash
-dsh plugin --profile desktop add <本目录>
+### 前置条件
+
+| 条件 | 说明 |
+|---|---|
+| DSH | 已在运行，且知道用的是哪个 profile（本仓库按 `desktop` 说明） |
+| Node | **>= 22**（`package.json` 的 `engines` 要求；本机实测 24.x） |
+| ComfyUI | 本机可达，默认 `http://127.0.0.1:8188`，**0.38.2 实测通过** |
+| 图像模型 | Qwen-Image 2.1：扩散模型 + `qwen3vl` 文本编码器 + `qwen_image` VAE，出参考图与关键帧用 |
+| 视频模型 | MiniMax-H3：`fl2va` 与/或 `ref2va` 扩散模型 + 文本编码器 + 视频 VAE + **音频 VAE**，出片用 |
+| 放大模型（可选） | ESRGAN 系任一款放 `models/upscale_models/`，高清放大用 |
+| 内存 | H3 权重约 19.5 GB，**建议 32 GB 以上**；不足时会在设置页标红 |
+
+三个默认路径（可在设置页改成你自己的）：
+
+```
+ComfyUI            http://127.0.0.1:8188
+模型根目录         <ComfyUI>/models          # Comfy Desktop 是 <Shared>/models
+插件数据目录       $DSH_HOME/shortdrama       # 项目、图片、视频、导出包
 ```
 
-> **注意**：宿主半边是 Node ESM 模块，**改动后需要重启 DSH 才能生效**。
-> disable/enable 不够——Node 的模块缓存会保留旧代码。
-> 客户端半边每次刷新页面重新加载，改完刷新即可。
+### 装进 profile
+
+DSH 的插件是按 profile 安装的，一个 profile 一个 `package.json`：
+
+```
+~/.dsh/profiles/<profile>/package.json
+```
+
+**方式一 · 用插件管理器**（装了 `dshmarket` 的话）：在界面里添加，仓库地址填
+`https://github.com/xw90554444/dsh-plugin-shortdrama`。
+
+**方式二 · 手工改两处**。这是本机在用的形态，也是本文档验证过的路径：
+
+1. 克隆到任意目录，例如 `D:\plugins\dsh-plugin-shortdrama`。
+
+2. 在 `~/.dsh/profiles/desktop/package.json` 的 `dependencies` 里加一行：
+
+   ```json
+   "dsh-plugin-shortdrama": "link:D:/plugins/dsh-plugin-shortdrama"
+   ```
+
+   想跟着上游更新就用 `"github:xw90554444/dsh-plugin-shortdrama"` 代替 `link:`。
+
+3. 在同一个文件的 `dsh.profile.bundles` 数组里加一项，**名字必须与 package name 一致**：
+
+   ```json
+   "dsh-plugin-shortdrama"
+   ```
+
+4. 装依赖。用 DSH 自带的 pnpm，避免版本不一致：
+
+   ```powershell
+   node "$env:DSH_HOME\dsh-runtimes\dsh-primary-runtime\dependencies\pnpm\bin\pnpm.mjs" install --dir "$env:DSH_HOME\profiles\desktop"
+   ```
+
+### 重启
+
+**宿主半边必须重启 DSH 进程**，刷新页面不够——它是 Node ESM 模块，模块缓存会留住旧代码。
+
+客户端半边（界面）每次刷新页面重新加载，改界面只需 `Ctrl+R`。
+
+### 装好之后怎么确认
+
+| 检查 | 期望 |
+|---|---|
+| 侧边栏 | 出现「短剧工作室」图标；点开是工作室面板，不是空白 |
+| 面板顶部 | 项目下拉、新建项目、新建示例按钮可用 |
+| 设置页 | 「短剧工作室」小节里的连接测试能读出 ComfyUI 版本与显存 |
+| Agent 工具 | `drama_project` 等 7 个工具出现，`drama_comfy action=status` 能返回模型绑定结果 |
+
+**排错顺序**：面板空白或按钮没反应 → 先看宿主是否真的加载了（`Ctrl+Shift+R` 强刷一次）；
+仍不行就完全退出 DSH 再开；再看设置页的连接测试。
+
+> `cordis.patch.yml` 随仓库一起发布，它只插入本插件自己的一行，不覆盖任何官方组件。
 
 ---
 
